@@ -13,8 +13,8 @@ const Login = () => {
         // Validate the form data
         const message = checkValidData(email.current.value, password.current.value);
         setErrorMessage(message);
-        console.log(message);
-        console.log(email.current.value, password.current.value);
+
+        if(message) return;
     }
 
     const toggleSignInForm = () => {
