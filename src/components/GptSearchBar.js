@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import openai from '../utils/openai.js';
 import { API_OPTIONS } from '../utils/constants.js';
 import { addGptMovieResult } from '../utils/gptSlice.js';
+import { setLoading } from "../utils/gptSlice";
 
 const GptSearchBar = () => {
     const dispatch = useDispatch();
@@ -19,9 +20,9 @@ const GptSearchBar = () => {
     };
 
     const handleGPtSearchClick = async () => {
-        console.log(searchText.current.value);
         // Make an API call to GPT API and get MOvie Results
 
+        dispatch(setLoading(true))
         const gptQuery = "Act as a Movie Recommendation system and suggest some movies for the query : " +
             searchText.current.value +
             ". only give me names of 5 movies, comma separated like the example result given ahead. Example Results: Gadar, Sholay, Don, Golmaal, Koi Mil Gaya";
@@ -30,17 +31,17 @@ const GptSearchBar = () => {
             messages: [{ role: 'user', content: gptQuery }],
             model: 'gpt-3.5-turbo',
         });
-
         if (!gptResults.choices) {
             //TOTO: Write Error Handling
         }
-        console.log(gptResults.choices?.[0]?.message?.content);
+
         const gptMovies = gptResults.choices?.[0]?.message?.content.split(",");
 
         const promiseArray = gptMovies.map(movie => searchMovieTMDB(movie));
 
         const tmdbResults = await Promise.all(promiseArray);
         dispatch(addGptMovieResult({ movieNames: gptMovies, movieResults: tmdbResults }));
+        dispatch(setLoading(false))
     };
 
     return (
